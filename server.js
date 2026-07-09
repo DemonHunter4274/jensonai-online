@@ -1,6 +1,7 @@
 const WebSocket = require('ws');
 
-const wss = new WebSocket.Server({ port: 8080 });
+const port = process.env.PORT || 8080;
+
 
 let lastQuestion = "";
 let lastAnswer = "";
