@@ -1,40 +1,25 @@
-const path = require("path");
 const http = require("http");
 const WebSocket = require("ws");
+const fs = require("fs");
+const path = require("path");
 
 const port = process.env.PORT || 8080;
 
-// Create a basic HTTP server
 const server = http.createServer((req, res) => {
-  res.writeHead(200, { "Content-Type": "text/plain" });
-  res.end("JensonAI Online Mode is running ✅");
-});
+  let filePath = "./public" + req.url;
+  if (req.url === "/") filePath = "./public/consumer.html";
 
-// Attach WebSocket to the same server
-const wss = new WebSocket.Server({ server });
+  const ext = path.extname(filePath);
+  const contentType =
+    ext === ".html" ? "text/html; charset=utf-8" : "text/plain; charset=utf-8";
 
-let lastQuestion = "";
-let lastAnswer = "";
-
-wss.on("connection", ws => {
-  ws.send(JSON.stringify({
-    type: "init",
-    question: lastQuestion,
-    answer: lastAnswer
-  }));
-
-  ws.on("message", msg => {
-    const data = JSON.parse(msg);
-    if (data.type === "question") lastQuestion = data.text;
-    if (data.type === "answer") lastAnswer = data.text;
-
-    wss.clients.forEach(client => {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(JSON.stringify(data));
-      }
-    });
+  fs.readFile(filePath, (err, content) => {
+    if (err) {
+      res.writeHead(404);
+      res.end("404 Not Found");
+    } else {
+      res.writeHead(200, { "Content-Type": contentType });
+      res.end(content);
+    }
   });
 });
-
-server.listen(port, () => console.log("Server running on port " + port));
-
