@@ -23,7 +23,8 @@
 <p id="answer" style="color:#00ffaa;"></p>
 
 <script>
-const ws = new WebSocket("ws://localhost:8080");
+const ws = new WebSocket("wss://jensonai-online-production.up.railway.app");
+
 
 ws.onmessage = (event) => {
     const data = JSON.parse(event.data);
